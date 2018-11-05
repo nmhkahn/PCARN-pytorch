@@ -37,6 +37,9 @@ class Block(nn.Module):
 class Net(nn.Module):
     def __init__(self, scale=2, multi_scale=True, group=1):
         super().__init__()
+
+        self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
+        self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
         
         self.entry_x2 = nn.Conv2d(3, 64, 3, 1, 1)
         self.entry_x3 = nn.Conv2d(3, 64, 3, 1, 1)
