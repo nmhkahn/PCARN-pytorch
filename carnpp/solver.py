@@ -96,7 +96,7 @@ class Solver():
             shuffle=False, drop_last=False
         )
         
-        mean_psnr = 0
+        mean_psnr = 0.0
         for step, inputs in enumerate(test_loader):
             HR = inputs[0].to(self.device)
             LR = inputs[1].to(self.device)
@@ -104,7 +104,7 @@ class Solver():
 
             HR = HR.cpu().clamp(0, 1).squeeze(0).permute(1, 2, 0).numpy()
             SR = SR.cpu().clamp(0, 1).squeeze(0).permute(1, 2, 0).numpy()
-            mean_psnr += psnr(HR, SR, scale) / len(test_data)
+            mean_psnr += psnr(HR, SR, scale) / len(test_loader)
 
         return mean_psnr
 
