@@ -1,0 +1,7 @@
+*.swp
+.DS_Store
+__pycache__
+
+./runs
+./checkpoint
+./sample
