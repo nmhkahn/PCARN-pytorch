@@ -59,6 +59,8 @@ class Net(nn.Module):
                 
     def forward(self, x, scale):
         entry_fn = getattr(self, "entry_x{}".format(scale))
+
+        x = self.sub_mean(x)
         x = entry_fn(x)
         c0 = o0 = x
 
@@ -77,4 +79,5 @@ class Net(nn.Module):
         out = self.recon(o3) + x
         out = self.upsample(out, scale=scale)
         out = self.exit(out)
+        out = self.add_mean(out)
         return out

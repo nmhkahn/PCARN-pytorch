@@ -54,7 +54,7 @@ class Solver():
                 else:
                     # only use one of multi-scale data
                     # i know this is stupid but just temporary
-                    scale = np.random.randint(2, 4)
+                    scale = np.random.randint(2, 5)
                     HR, LR = inputs[scale-2][0], inputs[scale-2][1]
                 
                 HR = HR.to(self.device)
