@@ -100,7 +100,8 @@ class Solver():
         for step, inputs in enumerate(test_loader):
             HR = inputs[0].to(self.device)
             LR = inputs[1].to(self.device)
-            SR = self.net(LR, scale).detach()
+            with torch.no_grad():
+                SR = self.net(LR, scale).detach()
 
             HR = HR.cpu().clamp(0, 1).squeeze(0).permute(1, 2, 0).numpy()
             SR = SR.cpu().clamp(0, 1).squeeze(0).permute(1, 2, 0).numpy()
