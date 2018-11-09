@@ -21,9 +21,9 @@ class Solver():
         self.optim = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net.parameters()), 
             config.lr
-   	    )
+        )
         self.scheduler = torch.optim.lr_scheduler.StepLR(
-          	self.optim, 
+            self.optim, 
             config.decay, gamma=0.5,
         )
     

@@ -41,9 +41,7 @@ class Net(nn.Module):
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
         
-        self.entry_x2 = nn.Conv2d(3, 64, 3, 1, 1)
-        self.entry_x3 = nn.Conv2d(3, 64, 3, 1, 1)
-        self.entry_x4 = nn.Conv2d(3, 64, 3, 1, 1)
+        self.entry = nn.Conv2d(3, 64, 3, 1, 1)
 
         self.b1 = Block(64, 64)
         self.b2 = Block(64, 64)
@@ -61,10 +59,8 @@ class Net(nn.Module):
         self.exit = nn.Conv2d(64, 3, 3, 1, 1)
                 
     def forward(self, x, scale):
-        entry_fn = getattr(self, "entry_x{}".format(scale))
-
         x = self.sub_mean(x)
-        x = entry_fn(x)
+        x = self.entry(x)
         c0 = o0 = x
 
         b1 = self.b1(o0)
