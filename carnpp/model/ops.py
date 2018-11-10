@@ -54,6 +54,29 @@ class ResidualBlock(nn.Module):
         return out
 
 
+class EResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, group=1):
+        super().__init__()
+
+        self.conv1 = nn.Conv2d(
+            in_channels, out_channels, 
+            3, 1, 1, 
+            groups=group
+        )
+        self.conv2 = nn.Conv2d(
+            out_channels, out_channels, 
+            3, 1, 1, 
+            groups=group
+        )
+        self.pw = nn.Conv2d(out_channels, out_channels, 1, 1, 0)
+
+    def forward(self, x):
+        out = F.relu(self.conv1(x), inplace=True)
+        out = F.relu(self.conv2(out), inplace=True)
+        out = F.relu(self.pw(out)+x, inplace=True)
+        return out
+
+
 class UpsampleBlock(nn.Module):
     def __init__(self, n_channels, scale, multi_scale, group=1):
         super().__init__()
