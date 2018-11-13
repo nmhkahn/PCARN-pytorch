@@ -12,7 +12,7 @@ class Net(nn.Module):
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
         
         self.body = nn.Sequential(
-            nn.Conv2d(1, 56, 5, 1, 0),
+            nn.Conv2d(1, 56, 5, 1, 2),
             nn.PReLU(),
             nn.Conv2d(56, 12, 1, 1, 0),
             nn.PReLU(),
@@ -28,13 +28,14 @@ class Net(nn.Module):
 
             nn.Conv2d(12, 56, 1, 1, 0),
             nn.PReLU(),
-
-            nn.ConvTranspose2d(56, 1, 9, 4, 3, output_padding=1)
+        )
+            
+        self.up = nn.Sequential(
+            nn.ConvTranspose2d(56, 1, 9, scale, 3, output_padding=1)
         )
 
                 
     def forward(self, x, scale):
-        # x = self.sub_mean(x)
         out = self.body(x[:,:1])
-        # out = self.add_mean(out)
+        out = self.up(out)
         return out
