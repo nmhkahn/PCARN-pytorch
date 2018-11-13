@@ -10,13 +10,10 @@ class EResidualBlock(nn.Module):
         self.conv1 = nn.Conv2d(
             in_channels, out_channels, 
             3, 1, 1, 
-            groups=group
         )
-        self.pw = nn.Conv2d(out_channels, out_channels, 1, 1, 0)
 
     def forward(self, x):
-        out = F.relu(self.conv1(x), inplace=True)
-        out = F.relu(self.pw(out)+x, inplace=True)
+        out = F.relu(self.conv1(x)+x, inplace=True)
         return out
 
 
@@ -47,7 +44,7 @@ class Net(nn.Module):
     def __init__(self, scale=2, multi_scale=True, group=1):
         super().__init__()
 
-        group = 4
+        group = 1
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
@@ -60,15 +57,15 @@ class Net(nn.Module):
         self.c2 = ops.BasicBlock(12*3, 12, 1, 1, 0)
         
         self.up2 = nn.Sequential(
-            nn.Conv2d(12, 3*4, 1, 1, 0),
+            nn.Conv2d(12, 3*4, 3, 1, 1),
             nn.PixelShuffle(2)
         )
         self.up3 = nn.Sequential(
-            nn.Conv2d(12, 3*9, 1, 1, 0),
+            nn.Conv2d(12, 3*9, 3, 1, 1),
             nn.PixelShuffle(3)
         )
         self.up4 = nn.Sequential(
-            nn.Conv2d(12, 3*16, 1, 1, 0),
+            nn.Conv2d(12, 3*16, 3, 1, 1),
             nn.PixelShuffle(4)
         )
                 
