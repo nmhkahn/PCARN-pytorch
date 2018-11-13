@@ -40,8 +40,9 @@ class Solver():
 
         summary(
             self.net, 
-            torch.zeros((1, 3, 720//4, 1280//4)
-        ).to(self.device), scale=4)
+            torch.zeros((1, 3, 720//4, 1280//4)).to(self.device), 
+            scale=4
+        )
         self.writer = SummaryWriter(log_dir=os.path.join("./runs", config.memo))
         os.makedirs(config.ckpt_dir, exist_ok=True)
 
