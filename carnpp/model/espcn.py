@@ -9,32 +9,26 @@ class Net(nn.Module):
         super().__init__()
 
         self.body = nn.Sequential(
-            nn.Conv2d(1, 56, 5, 1, 2),
-            nn.PReLU(),
-            nn.Conv2d(56, 12, 1, 1, 0),
-            nn.PReLU(),
-
-            nn.Conv2d(12, 12, 3, 1, 1),
-            nn.PReLU(),
-            nn.Conv2d(12, 12, 3, 1, 1),
-            nn.PReLU(),
-            nn.Conv2d(12, 12, 3, 1, 1),
-            nn.PReLU(),
-            nn.Conv2d(12, 12, 3, 1, 1),
-            nn.PReLU(),
-
-            nn.Conv2d(12, 56, 1, 1, 0),
-            nn.PReLU()
+            nn.Conv2d(1, 64, 5, 1, 2),
+            nn.Tanh(),
+            nn.Conv2d(64, 32, 3, 1, 1),
+            nn.Tanh(),
         )
             
         self.up2 = nn.Sequential(
-            nn.ConvTranspose2d(56, 1, 9, 2, 4, output_padding=1)
+            nn.Conv2d(32, 4, 3, 1, 1),
+            nn.Tanh(),
+            nn.PixelShuffle(2)
         )
         self.up3 = nn.Sequential(
-            nn.ConvTranspose2d(56, 1, 9, 3, 4, output_padding=2)
+            nn.Conv2d(32, 9, 3, 1, 1),
+            nn.Tanh(),
+            nn.PixelShuffle(3)
         )
         self.up4 = nn.Sequential(
-            nn.ConvTranspose2d(56, 1, 9, 4, 4, output_padding=3)
+            nn.Conv2d(32, 1*16, 3, 1, 1),
+            nn.Tanh(),
+            nn.PixelShuffle(4)
         )
 
                 
@@ -47,5 +41,5 @@ class Net(nn.Module):
             out = self.up3(out)
         elif scale==4:
             out = self.up4(out)
-        
+
         return out
