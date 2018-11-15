@@ -64,21 +64,16 @@ class Net(nn.Module):
         self.b1 = Block(12, 12, group=group)
         self.b2 = Block(12, 12, group=group)
         self.c1 = nn.Conv2d(12*2, 12, 1, 1, 0)
-        self.c2 = nn.Conv2d(12*3, 12, 1, 1, 0)        
+        self.c2 = nn.Conv2d(12*3, 12, 1, 1, 0)    
+            
+        self.exit = nn.Sequential(
+            nn.Conv2d(12, 56, 1, 1, 0), 
+            nn.ReLU(inplace=True)
+        )
         
-        self.up2 = nn.Sequential(
-            nn.Conv2d(12, 56, 1, 1, 0), nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(56, 3, 9, 2, 4, output_padding=1)
-        )
-        self.up3 = nn.Sequential(
-            nn.Conv2d(12, 56, 1, 1, 0), nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(56, 3, 9, 3, 4, output_padding=2)
-
-        )
-        self.up4 = nn.Sequential(
-            nn.Conv2d(12, 56, 1, 1, 0), nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(56, 3, 9, 4, 4, output_padding=3)
-        )
+        self.up2 = nn.ConvTranspose2d(56, 3, 9, 2, 4, output_padding=1)
+        self.up3 = nn.ConvTranspose2d(56, 3, 9, 3, 4, output_padding=2)
+        self.up4 = nn.ConvTranspose2d(56, 3, 9, 4, 4, output_padding=3)
                 
     def forward(self, x, scale):
         x = self.sub_mean(x)
@@ -93,7 +88,7 @@ class Net(nn.Module):
         c2 = torch.cat([c1, b2], dim=1)
         o2 = self.c2(c2)
         
-        out = o2 + x
+        out = self.exit(o2+x)
         
         if scale==2:
             out = self.up2(out)
