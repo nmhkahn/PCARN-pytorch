@@ -25,6 +25,8 @@ def parse_args():
     parser.add_argument("--lr", type=float, default=0.0001)
     parser.add_argument("--clip", type=float, default=10.0)
 
+    parser.add_argument("--use_gray", action="store_true", default=False)
+
     return parser.parse_args()
 
 def main(cfg):

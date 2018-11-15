@@ -28,8 +28,9 @@ class Solver():
         )
     
         self.train_loader = generate_loader(
-            path=config.train_data, 
+            path=config.train_data,
             scale=config.scale, train=True,
+            use_gray=config.use_gray,
             size=config.patch_size, 
             batch_size=config.batch_size, num_workers=1,
             shuffle=True, drop_last=True
@@ -37,10 +38,11 @@ class Solver():
         
         self.step = 0
         self.config = config
-
+        
+        channel = 1 if config.use_gray else 3
         summary(
             self.net, 
-            torch.zeros((1, 3, 720//4, 1280//4)).to(self.device), 
+            torch.zeros((1, channel, 720//4, 1280//4)).to(self.device), 
             scale=4
         )
         self.writer = SummaryWriter(log_dir=os.path.join("./runs", config.memo))
