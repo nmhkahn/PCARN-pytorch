@@ -4,7 +4,6 @@ import h5py
 import random
 import numpy as np
 import skimage.io as io
-import skimage.color as color
 from torch.utils.data import DataLoader
 import torch.utils.data as data
 import torchvision.transforms as transforms
@@ -40,22 +39,17 @@ def random_flip_and_rotate(im1, im2):
     return im1.copy(), im2.copy()
 
 
-def rgb2gray(image):
-    y = color.rgb2ycbcr(image)[...,:1]
-    return y.astype(np.float32) / 255
-
-
 def generate_loader(
     path, scale, 
-    train=True, use_gray=False,
+    train=True,
     size=64,
     batch_size=64, num_workers=1,
     shuffle=True, drop_last=False
 ):
     if train:
-        data = TrainDataset(path, use_gray, size, scale)
+        data = TrainDataset(path, size, scale)
     else:
-        data = TestDataset(path, use_gray, scale)
+        data = TestDataset(path, scale)
 
     return DataLoader(
         data, 
@@ -64,11 +58,10 @@ def generate_loader(
     )
 
 class TrainDataset(data.Dataset):
-    def __init__(self, path, use_gray, size, scale):
+    def __init__(self, path, size, scale):
         super(TrainDataset, self).__init__()
 
         self.size = size
-        self.use_gray = use_gray
         h5f = h5py.File(path, "r")
         
         self.hr = [v[:] for v in h5f["HR"].values()]
@@ -94,9 +87,6 @@ class TrainDataset(data.Dataset):
         item = [random_crop(hr, lr, size, self.scale[i]) for i, (hr, lr) in enumerate(item)]
         item = [random_flip_and_rotate(hr, lr) for hr, lr in item]
         
-        if self.use_gray:
-            item = [(rgb2gray(hr), rgb2gray(lr)) for hr, lr in item]
-        
         return [(self.transform(hr), self.transform(lr)) for hr, lr in item]
 
     def __len__(self):
@@ -104,12 +94,11 @@ class TrainDataset(data.Dataset):
         
 
 class TestDataset(data.Dataset):
-    def __init__(self, dirname, use_gray, scale):
+    def __init__(self, dirname, scale):
         super(TestDataset, self).__init__()
 
         self.name  = dirname.split("/")[-1]
         self.scale = scale
-        self.use_gray = use_gray
         
         all_files = glob.glob(os.path.join(dirname, "x{}/*.png".format(scale)))
         self.hr = [name for name in all_files if "HR" in name]
@@ -125,13 +114,7 @@ class TestDataset(data.Dataset):
     def __getitem__(self, index):
         hr = io.imread(self.hr[index])
         lr = io.imread(self.lr[index])
-
-        if self.use_gray:
-            hr = rgb2gray(hr)
-            lr = rgb2gray(lr)
-
         filename = self.hr[index].split("/")[-1]
-
         return self.transform(hr), self.transform(lr), filename
 
     def __len__(self):
