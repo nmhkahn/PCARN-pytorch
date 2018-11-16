@@ -38,7 +38,7 @@ class RDB(nn.Module):
         )
 
     def forward(self, x):
-        return self.fusion(self.body(x)) + x
+        return torch.cat((x, self.fusion(self.body(x)) + x), 1)
 
 
 class Net(nn.Module):
@@ -47,7 +47,7 @@ class Net(nn.Module):
         
         self.num_blocks = 3
         self.num_layers = 6
-        self.grow_rate = 48
+        self.grow_rate = 64 # 32
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
@@ -57,12 +57,12 @@ class Net(nn.Module):
         self.blocks = nn.ModuleList()
         for n in range(self.num_blocks):
             self.blocks.append(
-                RDB(64, self.grow_rate, self.num_layers)
+                RDB(64*2**n, self.grow_rate, self.num_layers)
             )
 
         # Global Feature Fusion
         self.fusion = nn.Sequential(
-            nn.Conv2d(64*3, 64, 1, 1, 0),
+            nn.Conv2d(128+256+512, 64, 1, 1, 0),
             nn.Conv2d(64, 64, 3, 1, 1)
         )
 

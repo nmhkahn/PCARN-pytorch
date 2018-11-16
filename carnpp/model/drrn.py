@@ -3,6 +3,7 @@ import torch.nn as nn
 import model.ops as ops
 import torch.nn.functional as F
 
+"""
 class DenseConv(nn.Module):
     def __init__(
 		self, 
@@ -14,6 +15,23 @@ class DenseConv(nn.Module):
 
     def forward(self, x):
         out = F.relu(self.conv(x), inplace=True)
+        return torch.cat((x, out), 1)
+"""
+
+class DenseConv(nn.Module):
+    def __init__(
+        self, 
+        in_channels, grow_rate, 
+        ksize=3, stride=1, pad=1
+    ):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_channels, grow_rate, ksize, stride, pad)
+        self.conv2 = nn.Conv2d(grow_rate, grow_rate, ksize, stride, pad)
+        self.shortcut = nn.Conv2d(in_channels, grow_rate, 1, 1, 0)
+
+    def forward(self, x):
+        out = F.relu(self.conv1(x), inplace=True)
+        out = F.relu(self.conv2(out)+self.shortcut(x), inplace=True)
         return torch.cat((x, out), 1)
 
 
@@ -46,8 +64,8 @@ class Net(nn.Module):
         super().__init__()
         
         self.num_blocks = 3
-        self.num_layers = 6
-        self.grow_rate = 48
+        self.num_layers = 3
+        self.grow_rate = 64
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
