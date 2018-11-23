@@ -30,7 +30,7 @@ class Block(nn.Module):
         o3 = self.c3(c3)
 
         out = self.c4(o3)
-        return out
+        return out + x
         
 
 class Net(nn.Module):
@@ -72,7 +72,7 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-        out = self.c4(o3) + x
+        out = self.c4(o3)
         out = self.upsample(out, scale=scale)
 
         out = self.exit(out)

@@ -3,17 +3,16 @@ import torch.nn as nn
 import model.ops as ops
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, group=1):
+    def __init__(self, channel=64, group=1):
         super().__init__()
 
-        self.b1 = ops.ResidualBlock(64, 64)
-        self.b2 = ops.ResidualBlock(64, 64)
-        self.b3 = ops.ResidualBlock(64, 64)
-        self.c1 = nn.Conv2d(64*2, 64, 1, 1, 0)
-        self.c2 = nn.Conv2d(64*3, 64, 1, 1, 0)
-        self.c3 = nn.Conv2d(64*4, 64, 1, 1, 0)
-
-        self.recon = nn.Conv2d(64, 64, 3, 1, 1)
+        self.b1 = ops.ResidualBlock(channel, channel)
+        self.b2 = ops.ResidualBlock(channel, channel)
+        self.b3 = ops.ResidualBlock(channel, channel)
+        self.c1 = nn.Conv2d(channel*2, channel, 1, 1, 0)
+        self.c2 = nn.Conv2d(channel*3, channel, 1, 1, 0)
+        self.c3 = nn.Conv2d(channel*4, channel, 1, 1, 0)
+        self.c4 = nn.Conv2d(channel, channel, 3, 1, 1)
 
     def forward(self, x):
         c0 = o0 = x
@@ -30,8 +29,8 @@ class Block(nn.Module):
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
 
-        out = self.recon(o3)
-        return out + x
+        out = self.c4(o3)
+        return out
         
 
 class Net(nn.Module):
@@ -40,17 +39,16 @@ class Net(nn.Module):
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
-        
         self.entry = nn.Conv2d(3, 64, 3, 1, 1)
 
-        self.b1 = Block(64, 64)
-        self.b2 = Block(64, 64)
-        self.b3 = Block(64, 64)
+        self.b1 = Block(64)
+        self.b2 = Block(64)
+        self.b3 = Block(64)
         self.c1 = nn.Conv2d(64*2, 64, 1, 1, 0)
         self.c2 = nn.Conv2d(64*3, 64, 1, 1, 0)
         self.c3 = nn.Conv2d(64*4, 64, 1, 1, 0)
-        
-        self.recon = nn.Conv2d(64, 64, 3, 1, 1)
+        self.c4 = nn.Conv2d(64, 64, 3, 1, 1)
+
         self.upsample = ops.UpsampleBlock(
             64, 
             scale=scale, multi_scale=multi_scale,
@@ -74,9 +72,9 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-
-        out = self.recon(o3) + x
+        out = self.c4(o3)
         out = self.upsample(out, scale=scale)
+
         out = self.exit(out)
         out = self.add_mean(out)
         return out
