@@ -4,6 +4,7 @@ import h5py
 import random
 import numpy as np
 import skimage.io as io
+import skimage.color as color
 from torch.utils.data import DataLoader
 import torch.utils.data as data
 import torchvision.transforms as transforms
@@ -114,6 +115,11 @@ class TestDataset(data.Dataset):
     def __getitem__(self, index):
         hr = io.imread(self.hr[index])
         lr = io.imread(self.lr[index])
+        
+        if len(hr.shape) == 2:
+            hr = color.gray2rgb(hr)
+            lr = color.gray2rgb(lr)
+
         filename = self.hr[index].split("/")[-1]
         return self.transform(hr), self.transform(lr), filename
 
