@@ -82,16 +82,16 @@ class Solver():
 
                 if self.step % config.print_interval == 0:
                     if config.scale > 0:
-                        psnr = self.evaluate("dataset/Urban100", config.scale)
-                        self.writer.add_scalar("Urban100", psnr, self.step)
+                        psnr = self.evaluate("dataset/Set14", config.scale)
+                        self.writer.add_scalar("Set14", psnr, self.step)
                     else:
-                        psnr_x2 = self.evaluate("dataset/Urban100", 2)
-                        psnr_x3 = self.evaluate("dataset/Urban100", 3)
-                        psnr_x4 = self.evaluate("dataset/Urban100", 4)
+                        psnr_x2 = self.evaluate("dataset/Set14", 2)
+                        psnr_x3 = self.evaluate("dataset/Set14", 3)
+                        psnr_x4 = self.evaluate("dataset/Set14", 4)
 
-                        self.writer.add_scalar("Urban100/x2", psnr_x2, self.step)
-                        self.writer.add_scalar("Urban100/x3", psnr_x3, self.step)
-                        self.writer.add_scalar("Urban100/x4", psnr_x4, self.step)
+                        self.writer.add_scalar("Set14/x2", psnr_x2, self.step)
+                        self.writer.add_scalar("Set14/x3", psnr_x3, self.step)
+                        self.writer.add_scalar("Set14/x4", psnr_x4, self.step)
                     self.save(config.ckpt_dir)
             if self.step > config.max_steps: break
 
