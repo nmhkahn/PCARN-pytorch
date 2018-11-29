@@ -12,7 +12,6 @@ class Block(nn.Module):
         self.c1 = nn.Conv2d(channel*2, channel, 1, 1, 0)
         self.c2 = nn.Conv2d(channel*3, channel, 1, 1, 0)
         self.c3 = nn.Conv2d(channel*4, channel, 1, 1, 0)
-        self.c4 = nn.Conv2d(channel, channel, 3, 1, 1)
 
     def forward(self, x):
         c0 = o0 = x
@@ -29,8 +28,7 @@ class Block(nn.Module):
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
 
-        out = self.c4(o3)
-        return out
+        return o3
         
 
 class Net(nn.Module):
@@ -47,7 +45,6 @@ class Net(nn.Module):
         self.c1 = nn.Conv2d(64*2, 64, 1, 1, 0)
         self.c2 = nn.Conv2d(64*3, 64, 1, 1, 0)
         self.c3 = nn.Conv2d(64*4, 64, 1, 1, 0)
-        self.c4 = nn.Conv2d(64, 64, 3, 1, 1)
 
         self.upsample = ops.UpsampleBlock(
             64, 
@@ -72,8 +69,7 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-        out = self.c4(o3)
-        out = self.upsample(out, scale=scale)
+        out = self.upsample(o3+x, scale=scale)
 
         out = self.exit(out)
         out = self.add_mean(out)
