@@ -55,18 +55,18 @@ class ResidualBlock(nn.Module):
 
 
 class EResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, group=1):
+    def __init__(self, in_channels, out_channels, groups=1):
         super().__init__()
 
         self.conv1 = nn.Conv2d(
             in_channels, out_channels, 
             3, 1, 1, 
-            groups=group
+            groups=groups
         )
         self.conv2 = nn.Conv2d(
             out_channels, out_channels, 
             3, 1, 1, 
-            groups=group
+            groups=groups
         )
         self.pw = nn.Conv2d(out_channels, out_channels, 1, 1, 0)
 
@@ -78,15 +78,15 @@ class EResidualBlock(nn.Module):
 
 
 class UpsampleBlock(nn.Module):
-    def __init__(self, n_channels, scale, multi_scale, group=1):
+    def __init__(self, n_channels, scale, multi_scale, groups=1):
         super().__init__()
 
         if multi_scale:
-            self.up2 = _UpsampleBlock(n_channels, scale=2, group=group)
-            self.up3 = _UpsampleBlock(n_channels, scale=3, group=group)
-            self.up4 = _UpsampleBlock(n_channels, scale=4, group=group)
+            self.up2 = _UpsampleBlock(n_channels, scale=2, groups=groups)
+            self.up3 = _UpsampleBlock(n_channels, scale=3, groups=groups)
+            self.up4 = _UpsampleBlock(n_channels, scale=4, groups=groups)
         else:
-            self.up =  _UpsampleBlock(n_channels, scale=scale, group=group)
+            self.up =  _UpsampleBlock(n_channels, scale=scale, groups=groups)
         self.multi_scale = multi_scale
 
     def forward(self, x, scale):
@@ -102,22 +102,32 @@ class UpsampleBlock(nn.Module):
 
 
 class _UpsampleBlock(nn.Module):
-    def __init__(self, n_channels, scale, group=1):
+    def __init__(self, n_channels, scale, groups=1):
         super().__init__()
 
         self.body = nn.ModuleList()
         if scale == 2 or scale == 4 or scale == 8:
             for _ in range(int(math.log(scale, 2))):
                 self.body.append(
-                    nn.Conv2d(n_channels, 4*n_channels, 3, 1, 1, groups=group)
+                    nn.Conv2d(n_channels, 4*n_channels, 3, 1, 1, groups=groups)
                 )
                 self.body.append(nn.ReLU(inplace=True))
+                if groups > 1:
+                    self.body.append(
+                        nn.Conv2d(4*n_channels, 4*n_channels, 1, 1, 0)
+                    )
+                    self.body.append(nn.ReLU(inplace=True))
                 self.body.append(nn.PixelShuffle(2))
         elif scale == 3:
             self.body.append(
-                nn.Conv2d(n_channels, 9*n_channels, 3, 1, 1, groups=group)
+                nn.Conv2d(n_channels, 9*n_channels, 3, 1, 1, groups=groups)
             )
             self.body.append(nn.ReLU(inplace=True))
+            if groups > 1:
+                self.body.append(
+                    nn.Conv2d(9*n_channels, 9*n_channels, 1, 1, 0)
+                )
+                self.body.append(nn.ReLU(inplace=True))
             self.body.append(nn.PixelShuffle(3))
 
     def forward(self, x):

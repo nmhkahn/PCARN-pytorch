@@ -3,16 +3,19 @@ import torch.nn as nn
 import model.ops as ops
 
 class Block(nn.Module):
-    def __init__(self, channel=64, group=1):
+    def __init__(self, channel=64, mobile=False, groups=1):
         super().__init__()
-
-        self.b1 = ops.ResidualBlock(channel, channel)
-        self.b2 = ops.ResidualBlock(channel, channel)
-        self.b3 = ops.ResidualBlock(channel, channel)
+        
+        if mobile:
+            self.b1 = ops.EResidualBlock(channel, channel, groups=groups)
+            self.b2 = self.b3 = self.b1
+        else:
+            self.b1 = ops.ResidualBlock(channel, channel)
+            self.b2 = ops.ResidualBlock(channel, channel)
+            self.b3 = ops.ResidualBlock(channel, channel)
         self.c1 = nn.Conv2d(channel*2, channel, 1, 1, 0)
         self.c2 = nn.Conv2d(channel*3, channel, 1, 1, 0)
         self.c3 = nn.Conv2d(channel*4, channel, 1, 1, 0)
-        self.c4 = nn.Conv2d(channel, channel, 3, 1, 1)
 
     def forward(self, x):
         c0 = o0 = x
@@ -29,32 +32,35 @@ class Block(nn.Module):
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
 
-        out = self.c4(o3)
-        return out
+        return o3
         
 
 class Net(nn.Module):
-    def __init__(self, scale=2, multi_scale=True, group=1):
+    def __init__(
+        self, 
+        scale=2, multi_scale=True, 
+        num_channels=64,
+        mobile=False, groups=1
+    ):
         super().__init__()
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
         self.add_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=False)
-        self.entry = nn.Conv2d(3, 64, 3, 1, 1)
+        self.entry = nn.Conv2d(3, num_channels, 3, 1, 1)
 
-        self.b1 = Block(64)
-        self.b2 = Block(64)
-        self.b3 = Block(64)
-        self.c1 = nn.Conv2d(64*2, 64, 1, 1, 0)
-        self.c2 = nn.Conv2d(64*3, 64, 1, 1, 0)
-        self.c3 = nn.Conv2d(64*4, 64, 1, 1, 0)
-        self.c4 = nn.Conv2d(64, 64, 3, 1, 1)
+        self.b1 = Block(num_channels, mobile, groups)
+        self.b2 = Block(num_channels, mobile, groups)
+        self.b3 = Block(num_channels, mobile, groups)
+        self.c1 = nn.Conv2d(num_channels*2, num_channels, 1, 1, 0)
+        self.c2 = nn.Conv2d(num_channels*3, num_channels, 1, 1, 0)
+        self.c3 = nn.Conv2d(num_channels*4, num_channels, 1, 1, 0)
 
         self.upsample = ops.UpsampleBlock(
-            64, 
+            num_channels,
             scale=scale, multi_scale=multi_scale,
-            group=group
+            groups=groups
         )
-        self.exit = nn.Conv2d(64, 3, 3, 1, 1)
+        self.exit = nn.Conv2d(num_channels, 3, 3, 1, 1)
                 
     def forward(self, x, scale):
         x = self.sub_mean(x)
@@ -72,8 +78,7 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-        out = self.c4(o3) + x
-        out = self.upsample(out, scale=scale)
+        out = self.upsample(o3+x, scale=scale)
 
         out = self.exit(out)
         out = self.add_mean(out)

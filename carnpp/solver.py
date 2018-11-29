@@ -11,12 +11,17 @@ class Solver():
     def __init__(self, model, config):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
+        kwargs = {
+            "num_channels": config.num_channels,
+            "groups": config.group,
+            "mobile": config.mobile
+        }
         if config.scale > 0:
-            self.net = model(scale=config.scale, group=config.group)
+            kwargs["scale"] = config.scale
         else:
-            self.net = model(multi_scale=True, group=config.group)
+            kwargs["multi_scale"] = True
         
-        self.net = self.net.to(self.device)
+        self.net = model(**kwargs).to(self.device)
         self.loss_fn = nn.L1Loss()
         self.optim = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net.parameters()), 

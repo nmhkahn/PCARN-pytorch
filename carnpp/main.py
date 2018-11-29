@@ -17,7 +17,10 @@ def parse_args():
     parser.add_argument("--print_interval", type=int, default=1000)
     parser.add_argument("--num_gpu", type=int, default=1)
     
+    parser.add_argument("--mobile", action="store_true", default=False)
+    parser.add_argument("--num_channels", type=int, default=64)
     parser.add_argument("--group", type=int, default=1)
+
     parser.add_argument("--patch_size", type=int, default=64)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--max_steps", type=int, default=600000)
