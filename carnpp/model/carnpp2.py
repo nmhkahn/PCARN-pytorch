@@ -117,7 +117,7 @@ class ResidualBlock(nn.Module):
         else:
             self.block1 = SResidualBlock(n_channels)
             self.block2 = SResidualBlock(n_channels)
-               
+
     def forward(self, x):
         out = self.block1(x)
         out = self.block2(out)
@@ -163,9 +163,9 @@ class _UpsampleBlock(nn.Module):
                 self.body.append(nn.PixelShuffle(2))
         elif scale == 3:
             if mobile:
-                self.body.append(BasicBlock(n_channels, 4*n_channels, True,  groups))
+                self.body.append(BasicBlock(n_channels, 9*n_channels, True,  groups))
             else:
-                self.body.append(BasicBlock(n_channels, 4*n_channels))
+                self.body.append(BasicBlock(n_channels, 9*n_channels))
             self.body.append(nn.PixelShuffle(3))
 
     def forward(self, x):

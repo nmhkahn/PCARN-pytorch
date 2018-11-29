@@ -3,7 +3,7 @@ import torch.nn as nn
 import model.ops as ops
 
 class Block(nn.Module):
-    def __init__(self, channel=64, group=1):
+    def __init__(self, channel=64, mobile=False, groups=1):
         super().__init__()
 
         self.b1 = ops.ResidualBlock(channel, channel)
@@ -21,7 +21,12 @@ class Block(nn.Module):
         
 
 class Net(nn.Module):
-    def __init__(self, scale=2, multi_scale=True, group=1):
+    def __init__(
+        self, 
+        scale=2, multi_scale=True, 
+        num_channels=64,
+        mobile=False, groups=1
+    ):
         super().__init__()
 
         self.sub_mean = ops.MeanShift((0.4488, 0.4371, 0.4040), sub=True)
@@ -35,7 +40,7 @@ class Net(nn.Module):
         self.upsample = ops.UpsampleBlock(
             64, 
             scale=scale, multi_scale=multi_scale,
-            group=group
+            groups=groups
         )
         self.exit = nn.Conv2d(64, 3, 3, 1, 1)
                 
