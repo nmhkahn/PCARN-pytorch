@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 import torch
 import torch.nn as nn
 import model.ops as ops
@@ -74,7 +76,7 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-        out = self.upsample(o3, scale=scale)
+        out = self.upsample(o3+x, scale=scale)
 
         out = self.exit(out)
         out = self.add_mean(out)

@@ -5,7 +5,7 @@ import model.ops as ops
 class Block(nn.Module):
     def __init__(self, channel=64, mobile=False, groups=1):
         super().__init__()
-        
+
         if mobile:
             self.b1 = ops.EResidualBlock(channel, channel, groups=groups)
             self.b2 = self.b3 = self.b1
@@ -23,22 +23,22 @@ class Block(nn.Module):
         b1 = self.b1(o0)
         c1 = torch.cat([c0, b1], dim=1)
         o1 = self.c1(c1)
-        
+
         b2 = self.b2(o1)
         c2 = torch.cat([c1, b2], dim=1)
         o2 = self.c2(c2)
-        
+
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
 
         return o3
-        
+
 
 class Net(nn.Module):
     def __init__(
         self, 
-        scale=2, multi_scale=True, 
+        scale=2, multi_scale=True,
         num_channels=64,
         mobile=False, groups=1
     ):
@@ -61,7 +61,7 @@ class Net(nn.Module):
             groups=groups
         )
         self.exit = nn.Conv2d(num_channels, 3, 3, 1, 1)
-                
+
     def forward(self, x, scale):
         x = self.sub_mean(x)
         x = self.entry(x)
@@ -70,11 +70,11 @@ class Net(nn.Module):
         b1 = self.b1(o0)
         c1 = torch.cat([c0, b1], dim=1)
         o1 = self.c1(c1)
-        
+
         b2 = self.b2(o1)
         c2 = torch.cat([c1, b2], dim=1)
         o2 = self.c2(c2)
-        
+
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)

@@ -1,12 +1,11 @@
 import os
 import argparse
 import importlib
-import numpy as np
-import torch
 from collections import OrderedDict
+import torch
 from torchsummaryX import summary
 from dataset import generate_loader
-from utils import *
+import utils
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -27,7 +26,7 @@ def inference(net, config):
         config.data,
         scale=config.scale,
         train=False,
-        batch_size=1, num_workers=1, 
+        batch_size=1, num_workers=1,
         shuffle=False, drop_last=False
     )
     SR_root = os.path.join(
@@ -42,31 +41,31 @@ def inference(net, config):
     )
     os.makedirs(SR_root, exist_ok=True)
     os.makedirs(HR_root, exist_ok=True)
-    
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net = net.to(device)
-    
+
     summary(
-        net, 
-        torch.zeros((1, 3, 720//4, 1280//4)).to(device), 
+        net,
+        torch.zeros((1, 3, 720//4, 1280//4)).to(device),
         scale=4
     )
 
-    for step, inputs in enumerate(loader):
+    for _, inputs in enumerate(loader):
         HR = inputs[0].to(device)
         LR = inputs[1].to(device)
         with torch.no_grad():
             SR = net(LR, config.scale).detach()
-        
+
         HR_path = os.path.join(HR_root, inputs[2][0])
         SR_path = os.path.join(SR_root, inputs[2][0].replace("HR", "SR"))
-        save_image(SR.squeeze(0), SR_path)
-        save_image(HR.squeeze(0), HR_path)
+        utils.save_image(SR.squeeze(0), SR_path)
+        utils.save_image(HR.squeeze(0), HR_path)
 
 
 def main(config):
     model = importlib.import_module("model.{}".format(config.model)).Net
-    
+
     kwargs = {
         "num_channels": config.num_channels,
         "groups": config.groups,
@@ -84,8 +83,8 @@ def main(config):
     net.load_state_dict(new_state_dict)
 
     inference(net, config)
- 
+
 
 if __name__ == "__main__":
-    config = parse_args()
-    main(config)
+    args = parse_args()
+    main(args)

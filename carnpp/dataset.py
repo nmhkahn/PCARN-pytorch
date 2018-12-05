@@ -1,7 +1,7 @@
 import os
 import glob
-import h5py
 import random
+import h5py
 import numpy as np
 import skimage.io as io
 import skimage.color as color
@@ -41,20 +41,20 @@ def random_flip_and_rotate(im1, im2):
 
 
 def generate_loader(
-    path, scale, 
+    path, scale,
     train=True,
     size=64,
     batch_size=64, num_workers=1,
     shuffle=True, drop_last=False
 ):
     if train:
-        data = TrainDataset(path, size, scale)
+        dataset = TrainDataset(path, size, scale)
     else:
-        data = TestDataset(path, scale)
+        dataset = TestDataset(path, scale)
 
     return DataLoader(
-        data, 
-        batch_size=batch_size, num_workers=num_workers, 
+        dataset,
+        batch_size=batch_size, num_workers=num_workers,
         shuffle=shuffle, drop_last=drop_last
     )
 
@@ -64,7 +64,7 @@ class TrainDataset(data.Dataset):
 
         self.size = size
         h5f = h5py.File(path, "r")
-        
+
         self.hr = [v[:] for v in h5f["HR"].values()]
         # perform multi-scale training
         if scale == 0:
@@ -73,7 +73,7 @@ class TrainDataset(data.Dataset):
         else:
             self.scale = [scale]
             self.lr = [[v[:] for v in h5f["X{}".format(scale)].values()]]
-        
+
         h5f.close()
 
         self.transform = transforms.Compose([
@@ -87,20 +87,20 @@ class TrainDataset(data.Dataset):
 
         item = [random_crop(hr, lr, size, self.scale[i]) for i, (hr, lr) in enumerate(item)]
         item = [random_flip_and_rotate(hr, lr) for hr, lr in item]
-        
+
         return [(self.transform(hr), self.transform(lr)) for hr, lr in item]
 
     def __len__(self):
         return len(self.hr)
-        
+
 
 class TestDataset(data.Dataset):
     def __init__(self, dirname, scale):
         super(TestDataset, self).__init__()
 
-        self.name  = dirname.split("/")[-1]
+        self.name = dirname.split("/")[-1]
         self.scale = scale
-        
+
         all_files = glob.glob(os.path.join(dirname, "x{}/*.png".format(scale)))
         self.hr = [name for name in all_files if "HR" in name]
         self.lr = [name for name in all_files if "LR" in name]
@@ -115,7 +115,7 @@ class TestDataset(data.Dataset):
     def __getitem__(self, index):
         hr = io.imread(self.hr[index])
         lr = io.imread(self.lr[index])
-        
+
         if len(hr.shape) == 2:
             hr = color.gray2rgb(hr)
             lr = color.gray2rgb(lr)

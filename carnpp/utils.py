@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import skimage.color as color
 import skimage.measure as measure
@@ -12,12 +11,12 @@ def save_image(tensor, filename):
 
 
 def psnr(im1, im2, scale):
-    im1 = color.rgb2yuv(im1[scale:-scale, scale:-scale])[...,0]
-    im2 = color.rgb2yuv(im2[scale:-scale, scale:-scale])[...,0]
+    im1 = color.rgb2yuv(im1[scale:-scale, scale:-scale])[..., 0]
+    im2 = color.rgb2yuv(im2[scale:-scale, scale:-scale])[..., 0]
     return measure.compare_psnr(im1, im2)
 
 
 def ssim(im1, im2, scale):
-    im1 = color.rgb2yuv(im1[scale:-scale, scale:-scale])[...,0]
-    im2 = color.rgb2yuv(im2[scale:-scale, scale:-scale])[...,0]
+    im1 = color.rgb2yuv(im1[scale:-scale, scale:-scale])[..., 0]
+    im2 = color.rgb2yuv(im2[scale:-scale, scale:-scale])[..., 0]
     return measure.compare_ssim(im1, im2)

@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 import torch
 import torch.nn as nn
 import model.ops as ops
@@ -9,24 +11,13 @@ class Block(nn.Module):
         self.b1 = ops.ResidualBlock(channel, channel)
         self.b2 = ops.ResidualBlock(channel, channel)
         self.b3 = ops.ResidualBlock(channel, channel)
-        self.c1 = nn.Conv2d(channel*2, channel, 1, 1, 0)
-        self.c2 = nn.Conv2d(channel*3, channel, 1, 1, 0)
-        self.c3 = nn.Conv2d(channel*4, channel, 1, 1, 0)
 
     def forward(self, x):
         c0 = o0 = x
 
-        b1 = self.b1(o0)
-        c1 = torch.cat([c0, b1], dim=1)
-        o1 = self.c1(c1)
-        
-        b2 = self.b2(o1)
-        c2 = torch.cat([c1, b2], dim=1)
-        o2 = self.c2(c2)
-        
-        b3 = self.b3(o2)
-        c3 = torch.cat([c2, b3], dim=1)
-        o3 = self.c3(c3)
+        o1 = self.b1(o0)
+        o2 = self.b2(o1)
+        o3 = self.b3(o2)
 
         return o3
         
@@ -74,7 +65,7 @@ class Net(nn.Module):
         b3 = self.b3(o2)
         c3 = torch.cat([c2, b3], dim=1)
         o3 = self.c3(c3)
-        out = self.upsample(o3+x, scale=scale)
+        out = self.upsample(o3, scale=scale)
 
         out = self.exit(out)
         out = self.add_mean(out)
