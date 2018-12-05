@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument("--model", type=str)
     parser.add_argument("--ckpt", type=str)
     parser.add_argument("--sample_dir", type=str, default="./sample")
-    parser.add_argument("--group", type=int, default=1)
+    parser.add_argument("--groups", type=int, default=1)
     parser.add_argument("--data", type=str, default="./dataset/Urban100")
     parser.add_argument("--scale", type=int, default=4)
     parser.add_argument("--num_channels", type=int, default=64)
@@ -69,7 +69,7 @@ def main(config):
     
     kwargs = {
         "num_channels": config.num_channels,
-        "group": config.group,
+        "groups": config.groups,
         "mobile": config.mobile,
         "scale": config.scale,
     }
