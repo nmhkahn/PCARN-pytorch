@@ -4,12 +4,15 @@ import torch
 import torch.nn as nn
 from tensorboardX import SummaryWriter
 from torchsummaryX import summary
-from dataset import generate_loader
 import utils
+from dataset import generate_loader
+from init import init_weights
 
 class Solver():
     def __init__(self, model, config):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
 
         kwargs = {
             "num_channels": config.num_channels,
@@ -22,6 +25,8 @@ class Solver():
             kwargs["multi_scale"] = True
 
         self.net = model(**kwargs).to(self.device)
+        init_weights(self.net, config.init_type, config.init_scale)
+
         self.loss_fn = nn.L1Loss()
         self.optim = torch.optim.Adam(
             filter(lambda p: p.requires_grad, self.net.parameters()),
