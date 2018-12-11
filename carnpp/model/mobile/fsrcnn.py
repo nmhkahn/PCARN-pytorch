@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -25,7 +27,7 @@ class Net(nn.Module):
             nn.Conv2d(12, 56, 1, 1, 0),
             nn.PReLU()
         )
-            
+
         self.up2 = nn.Sequential(
             nn.ConvTranspose2d(56, 1, 9, 2, 4, output_padding=1)
         )
@@ -45,5 +47,4 @@ class Net(nn.Module):
             out = self.up3(out)
         elif scale==4:
             out = self.up4(out)
-        
         return out

@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,7 +24,7 @@ class Net(nn.Module):
         self.up3 = nn.Sequential(
             nn.Conv2d(32, 9, 3, 1, 1),
             nn.Tanh(),
-            nn.PixelShuffle()
+            nn.PixelShuffle(3)
         )
         self.up4 = nn.Sequential(
             nn.Conv2d(32, 1*16, 3, 1, 1),

@@ -10,6 +10,7 @@ def parse_args():
     parser.add_argument("--scale", type=int)
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
+    parser.add_argument("--num_exp", type=int, default=100)
 
     return parser.parse_args()
 
@@ -28,18 +29,18 @@ def inference(net, config):
         net(inp, config.scale)
 
     avg_time = 0.0
-    for _ in range(10):
+    for _ in range(config.num_exp):
         t1 = time.time()
         with torch.no_grad():
             net(inp, config.scale)
         t2 = time.time()
 
-        avg_time += (t2-t1)/20
+        avg_time += (t2-t1)/config.num_exp
     print("{} x{}: {:.3f}".format(config.model, config.scale, avg_time))
 
 def main(config):
     model = importlib.import_module("model.{}".format(config.model)).Net
-    net = model(scale=config.scale, group=1)
+    net = model(scale=config.scale, groups=1)
     inference(net, config)
 
 
