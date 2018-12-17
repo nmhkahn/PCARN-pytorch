@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=$1 python carnpp/main.py \
+CUDA_VISIBLE_DEVICES=$1 python ecarn/main.py \
     --model ablation.$2 \
     --ckpt_dir checkpoint/$2_$3 \
     --memo $2_$3 \
