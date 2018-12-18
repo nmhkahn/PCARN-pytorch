@@ -9,7 +9,7 @@ from dataset import generate_loader
 from init import init_weights
 
 class Solver():
-    def __init__(self, model, config):
+    def __init__(self, module, config):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
@@ -24,7 +24,7 @@ class Solver():
         else:
             kwargs["multi_scale"] = True
 
-        self.net = model(**kwargs).to(self.device)
+        self.net = module.Net(**kwargs).to(self.device)
         init_weights(self.net, config.init_type, config.init_scale)
 
         self.loss_fn = nn.L1Loss()
@@ -58,7 +58,6 @@ class Solver():
 
     def fit(self):
         config = self.config
-        net = nn.DataParallel(self.net, device_ids=range(config.num_gpu))
 
         while True:
             for inputs in self.train_loader:
@@ -74,7 +73,7 @@ class Solver():
                 HR = HR.to(self.device)
                 LR = LR.to(self.device)
 
-                SR = net(LR, scale)
+                SR = self.net(LR, scale)
                 loss = self.loss_fn(SR, HR)
 
                 self.optim.zero_grad()

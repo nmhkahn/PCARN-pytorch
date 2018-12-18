@@ -86,7 +86,7 @@ class Net(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, patch_size):
+    def __init__(self):
         super().__init__()
 
         def conv_bn_lrelu(in_channels, out_channels, ksize, stride, pad):
@@ -96,34 +96,39 @@ class Discriminator(nn.Module):
                 nn.LeakyReLU()
             )
 
-        self.conv1 = nn.Sequential(
+        self.entry = nn.Sequential(
             nn.Conv2d(3, 64, 3, 1, 1),
             nn.LeakyReLU()
         )
-        self.convs = nn.Sequential(
+        self.block1 = nn.Sequential(
             conv_bn_lrelu(64, 64, 3, 2, 1),
             conv_bn_lrelu(64, 128, 3, 1, 1),
             conv_bn_lrelu(128, 128, 3, 2, 1),
-            conv_bn_lrelu(128, 256, 3, 1, 1),
+            conv_bn_lrelu(128, 256, 3, 1, 1)
+        )
+        self.block2 = nn.Sequential(
             conv_bn_lrelu(256, 256, 3, 2, 1),
-            conv_bn_lrelu(256, 512, 3, 1, 1),
-            conv_bn_lrelu(512, 512, 3, 2, 1)
+            conv_bn_lrelu(256, 512, 3, 1, 1)
+        )
+        self.block3 = nn.Sequential(
+            conv_bn_lrelu(512, 512, 3, 2, 1),
+            conv_bn_lrelu(512, 512, 3, 1, 1)
         )
 
-        self.dense1 = nn.Sequential(
-            nn.Linear(patch_size//4*512, 1024),
-            nn.LeakyReLU()
-        )
-        self.dense2 = nn.Linear(1024, 1)
+        self.exit1 = nn.Conv2d(256, 1, 3, 1, 1)
+        self.exit2 = nn.Conv2d(512, 1, 3, 1, 1)
+        self.exit3 = nn.Conv2d(512, 1, 3, 1, 1)
 
     def forward(self, x):
         out = x
 
-        out = self.conv1(out)
-        out = self.convs(out)
+        b0 = self.entry(out)
+        b1 = self.block1(b0)
+        b2 = self.block2(b1)
+        b3 = self.block3(b2)
 
-        out = out.reshape(x.size(0), -1)
-        out = self.dense1(out)
-        out = self.dense2(out)
+        o1 = self.exit1(b1)
+        o2 = self.exit2(b2)
+        o3 = self.exit3(b3)
 
-        return out
+        return torch.sigmoid(o1), torch.sigmoid(o2), torch.sigmoid(o3)
