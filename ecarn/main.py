@@ -33,6 +33,7 @@ def parse_args():
     parser.add_argument("--pretrained_ckpt", type=str)
     parser.add_argument("--gamma_vgg", type=float, default=1.0)
     parser.add_argument("--gamma_gan", type=float, default=5e-3)
+    parser.add_argument("--msd", action="store_true", default=False)
 
     return parser.parse_args()
 
