@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import skimage.color as color
 import skimage.measure as measure
+import torchvision
 from PIL import Image
 from PerceptualSimilarity.models import dist_model as dm
 
@@ -19,6 +20,22 @@ class GANLoss(nn.Module):
         label_tensor = label_tensor.expand_as(inp)
         return self.loss_fn(inp, label_tensor)
 
+
+class VGGLoss(nn.Module):
+    def __init__(self, feature=34):
+        super().__init__()
+
+        model = torchvision.models.vgg19(pretrained=True).features
+        self.features = nn.Sequential(*list(model.children())[:(feature+1)])
+        self.loss_fn = nn.MSELoss()
+
+        for _, v in self.features.named_parameters():
+            v.requires_grad = False
+
+    def __call__(self, inp, target):
+        inp_feature = self.features(inp)
+        target_feature = self.features(target)
+        return self.loss_fn(inp_feature, target_feature)
 
 def save_image(tensor, filename):
     tensor = tensor.cpu()

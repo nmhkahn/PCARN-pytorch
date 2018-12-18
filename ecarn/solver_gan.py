@@ -29,6 +29,7 @@ class Solver():
 
         self.loss_l2 = nn.MSELoss()
         self.loss_gan = utils.GANLoss(self.device)
+        self.loss_vgg = utils.VGGLoss().to(self.device)
 
         self.optim_G = torch.optim.Adam(self.G.parameters(), config.lr)
         self.optim_D = torch.optim.Adam(self.D.parameters(), config.lr)
@@ -85,9 +86,11 @@ class Solver():
                 # train the generator
                 SR = self.G(LR, scale)
                 D_fake_loss = self.loss_gan(self.D(SR)[-1], is_real=True)
+                D_vgg_loss = self.loss_vgg(SR, HR)
 
-                G_loss = config.gamma_gan * D_fake_loss# + \
-                #         config.gamma_vgg * D_vgg_loss
+                G_loss = config.gamma_gan * D_fake_loss + \
+                         config.gamma_vgg * D_vgg_loss
+
                 self.optim_G.zero_grad()
                 G_loss.backward()
                 nn.utils.clip_grad_norm_(self.G.parameters(), config.clip)
@@ -103,6 +106,7 @@ class Solver():
                     else:
                         raise NotImplementedError
                     self.save(config.ckpt_dir)
+
             if self.step > config.max_steps:
                 break
 
@@ -133,7 +137,7 @@ class Solver():
 
     def save(self, ckpt_dir):
         save_path = os.path.join(ckpt_dir, "{}.pth".format(self.step))
-        torch.save(self.net.state_dict(), save_path)
+        torch.save(self.G.state_dict(), save_path)
 
 def load(module, path):
     state_dict = torch.load(path)
