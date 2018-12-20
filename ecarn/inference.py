@@ -51,14 +51,14 @@ def inference(net, config):
         scale=4
     )
 
-    for _, inputs in enumerate(loader):
+    for i, inputs in enumerate(loader):
         HR = inputs[0].to(device)
         LR = inputs[1].to(device)
         with torch.no_grad():
             SR = net(LR, config.scale).detach()
 
-        HR_path = os.path.join(HR_root, inputs[2][0])
-        SR_path = os.path.join(SR_root, inputs[2][0].replace("HR", "SR"))
+        HR_path = os.path.join(HR_root, "{}.png".format(i))
+        SR_path = os.path.join(SR_root, "{}.png".format(i))
         utils.save_image(SR.squeeze(0), SR_path)
         utils.save_image(HR.squeeze(0), HR_path)
 
