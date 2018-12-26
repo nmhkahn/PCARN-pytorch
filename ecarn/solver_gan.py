@@ -24,7 +24,14 @@ class Solver():
             kwargs["multi_scale"] = True
 
         self.G = module.Net(**kwargs).to(self.device)
-        self.D = module.Discriminator(config.msd).to(self.device)
+        if config.msd:
+            self.D = [
+                module.Discriminator(1).to(self.device),
+                module.Discriminator(2).to(self.device),
+                module.Discriminator(4).to(self.device),
+            ]
+        else:
+            self.D = [module.Discriminator().to(self.device)]
         load(self.G, config.pretrained_ckpt)
 
         self.loss_l2 = nn.MSELoss()
@@ -32,7 +39,10 @@ class Solver():
         self.loss_vgg = utils.VGGLoss().to(self.device)
 
         self.optim_G = torch.optim.Adam(self.G.parameters(), config.lr)
-        self.optim_D = torch.optim.Adam(self.D.parameters(), config.lr)
+        D_params = list()
+        for D in self.D:
+            D_params += list(D.parameters())
+        self.optim_D = torch.optim.Adam(D_params, config.lr)
 
         self.train_loader = generate_loader(
             path=config.train_data,
@@ -71,22 +81,15 @@ class Solver():
                 LR = LR.to(self.device)
 
                 # train the discriminator
-                D_real = self.D(HR)
-                if config.msd:
-                    D_real_loss = (self.loss_gan(D_real[0], is_real=True) + \
-                                   self.loss_gan(D_real[1], is_real=True) + \
-                                   self.loss_gan(D_real[2], is_real=True)) / 3
-                else:
-                    D_real_loss = self.loss_gan(D_real, is_real=True)
+                D_real_loss = 0.0
+                for D_real in [D(HR) for D in self.D]:
+                    D_real_loss += self.loss_gan(D_real, is_real=True)
 
                 SR = self.G(LR, scale)
-                D_fake = self.D(SR)
-                if config.msd:
-                    D_fake_loss = (self.loss_gan(D_fake[0], is_real=False) + \
-                                   self.loss_gan(D_fake[1], is_real=False) + \
-                                   self.loss_gan(D_fake[2], is_real=False)) / 3
-                else:
-                    D_fake_loss = self.loss_gan(D_fake, is_real=False)
+
+                D_fake_loss = 0.0
+                for D_fake in [D(SR) for D in self.D]:
+                    D_fake_loss += self.loss_gan(D_fake, is_real=False)
 
                 D_loss = D_real_loss + D_fake_loss
                 self.optim_D.zero_grad()
@@ -95,15 +98,12 @@ class Solver():
 
                 # train the generator
                 SR = self.G(LR, scale)
-                D_fake = self.D(SR)
-                if config.msd:
-                    D_fake_loss = (self.loss_gan(D_fake[0], is_real=True) + \
-                                   self.loss_gan(D_fake[1], is_real=True) + \
-                                   self.loss_gan(D_fake[2], is_real=True)) / 3
-                else:
-                    D_fake_loss = self.loss_gan(D_fake, is_real=True)
-                D_vgg_loss = self.loss_vgg(SR, HR)
 
+                D_fake_loss = 0.0
+                for D_fake in [D(SR) for D in self.D]:
+                    D_fake_loss += self.loss_gan(D_fake, is_real=True)
+
+                D_vgg_loss = self.loss_vgg(SR, HR)
                 G_loss = config.gamma_gan * D_fake_loss + \
                          config.gamma_vgg * D_vgg_loss
 

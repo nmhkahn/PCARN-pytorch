@@ -86,7 +86,7 @@ class Net(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, multi_scale=False):
+    def __init__(self, downsample=1):
         super().__init__()
 
         def conv_bn_lrelu(in_channels, out_channels, ksize, stride, pad):
@@ -104,46 +104,19 @@ class Discriminator(nn.Module):
             conv_bn_lrelu(128, 256, 3, 1, 1),
             conv_bn_lrelu(256, 256, 4, 2, 1),
             conv_bn_lrelu(256, 512, 3, 1, 1),
-            conv_bn_lrelu(512, 512, 3, 1, 1)
-        )
-
-        self.exit1 = nn.Sequential(
+            conv_bn_lrelu(512, 512, 3, 1, 1),
             nn.Conv2d(512, 1, 3, 1, 1),
             nn.Sigmoid()
         )
-        if multi_scale:
-            self.body2 = nn.Sequential(
-                conv_bn_lrelu(512, 512, 4, 2, 1),
-                conv_bn_lrelu(512, 512, 3, 1, 1)
-            )
 
-            self.body3 = nn.Sequential(
-                conv_bn_lrelu(512, 512, 4, 2, 1),
-                conv_bn_lrelu(512, 512, 3, 1, 1)
-            )
+        if downsample > 1:
+            self.avg_pool = nn.AvgPool2d(downsample)
 
-            self.exit2 = nn.Sequential(
-                nn.Conv2d(512, 1, 3, 1, 1),
-                nn.Sigmoid()
-            )
-            self.exit3 = nn.Sequential(
-                nn.Conv2d(512, 1, 3, 1, 1),
-                nn.Sigmoid()
-            )
-
-        self.multi_scale = multi_scale
+        self.downsample = downsample
 
     def forward(self, x):
+        if self.downsample > 1:
+            x = self.avg_pool(x)
+
         out = self.body(x)
-
-        if self.multi_scale:
-            feat2 = self.body2(out)
-            feat3 = self.body3(feat2)
-            out1 = self.exit1(out)
-            out2 = self.exit2(feat2)
-            out3 = self.exit3(feat3)
-            out = [out1, out2, out3]
-        else:
-            out = self.exit1(out)
-
         return out
