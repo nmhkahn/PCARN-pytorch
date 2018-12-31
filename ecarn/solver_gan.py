@@ -120,7 +120,15 @@ class Solver():
                         self.writer.add_scalar("RMSE", rmse, self.step)
                         self.writer.add_scalar("LPIPS", lpips, self.step)
                     else:
-                        raise NotImplementedError
+                        rmse_x2, lpips_x2 = self.evaluate("dataset/Set14", 2)
+                        rmse_x3, lpips_x3 = self.evaluate("dataset/Set14", 3)
+                        rmse_x4, lpips_x4 = self.evaluate("dataset/Set14", 4)
+                        self.writer.add_scalar("RMSE/x2", rmse_x2, self.step)
+                        self.writer.add_scalar("RMSE/x3", rmse_x3, self.step)
+                        self.writer.add_scalar("RMSE/x4", rmse_x4, self.step)
+                        self.writer.add_scalar("LPIPS/x2", lpips_x2, self.step)
+                        self.writer.add_scalar("LPIPS/x3", lpips_x3, self.step)
+                        self.writer.add_scalar("LPIPS/x4", lpips_x4, self.step)
                     self.save(config.ckpt_dir)
 
             if self.step > config.max_steps:

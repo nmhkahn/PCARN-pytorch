@@ -113,22 +113,12 @@ class _UpsampleBlock(nn.Module):
                     nn.Conv2d(n_channels, 4*n_channels, 3, 1, 1, groups=groups)
                 )
                 self.body.append(nn.ReLU(inplace=True))
-                if groups > 1:
-                    self.body.append(
-                        nn.Conv2d(4*n_channels, 4*n_channels, 1, 1, 0)
-                    )
-                    self.body.append(nn.ReLU(inplace=True))
                 self.body.append(nn.PixelShuffle(2))
         elif scale == 3:
             self.body.append(
                 nn.Conv2d(n_channels, 9*n_channels, 3, 1, 1, groups=groups)
             )
             self.body.append(nn.ReLU(inplace=True))
-            if groups > 1:
-                self.body.append(
-                    nn.Conv2d(9*n_channels, 9*n_channels, 1, 1, 0)
-                )
-                self.body.append(nn.ReLU(inplace=True))
             self.body.append(nn.PixelShuffle(3))
 
     def forward(self, x):
