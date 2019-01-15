@@ -4,8 +4,8 @@ import importlib
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str)
-    parser.add_argument("--ckpt_dir", type=str, default="./checkpoint")
+    parser.add_argument("--model", type=str, default="ecarn")
+    parser.add_argument("--ckpt_dir", type=str, default="./checkpoint/ecarn")
     parser.add_argument("--train_data", type=str, default="./dataset/DIV2K.h5")
 
     parser.add_argument("--memo", type=str, default="")
@@ -17,8 +17,8 @@ def parse_args():
     parser.add_argument("--init_type", type=str, default="default")
     parser.add_argument("--init_scale", type=float, default=1.0)
 
-    parser.add_argument("--patch_size", type=int, default=64)
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--patch_size", type=int, default=48)
+    parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--max_steps", type=int, default=600000)
     parser.add_argument("--decay", type=int, default=400000)
     parser.add_argument("--lr", type=float, default=0.0001)
