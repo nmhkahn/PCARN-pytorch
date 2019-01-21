@@ -45,12 +45,13 @@ def generate_loader(
     train=True,
     size=64,
     batch_size=64, num_workers=1,
+    gt=True,
     shuffle=True, drop_last=False
 ):
     if train:
         dataset = TrainDataset(path, size, scale)
     else:
-        dataset = TestDataset(path, scale)
+        dataset = TestDataset(path, scale, gt=gt)
 
     return DataLoader(
         dataset,
@@ -95,33 +96,39 @@ class TrainDataset(data.Dataset):
 
 
 class TestDataset(data.Dataset):
-    def __init__(self, dirname, scale):
+    def __init__(self, dirname, scale, gt=True):
         super(TestDataset, self).__init__()
 
         self.name = dirname.split("/")[-1]
         self.scale = scale
+        self.gt = gt
 
-        all_files = glob.glob(os.path.join(dirname, "x{}/*.png".format(scale)))
-        self.hr = [name for name in all_files if "HR" in name]
-        self.lr = [name for name in all_files if "LR" in name]
+        all_files = sorted(glob.glob(os.path.join(
+            dirname, "x{}/*.png".format(scale))
+        ))
 
-        self.hr.sort()
-        self.lr.sort()
+        if gt:
+            self.hr = [name for name in all_files if "HR" in name]
+            self.lr = [name for name in all_files if "LR" in name]
+        else:
+            self.lr = all_files
 
         self.transform = transforms.Compose([
             transforms.ToTensor()
         ])
 
     def __getitem__(self, index):
-        hr = io.imread(self.hr[index])
+        filename = self.lr[index].split("/")[-1]
         lr = io.imread(self.lr[index])
-
-        if len(hr.shape) == 2:
-            hr = color.gray2rgb(hr)
+        if len(lr.shape) == 2:
             lr = color.gray2rgb(lr)
 
-        filename = self.hr[index].split("/")[-1]
-        return self.transform(hr), self.transform(lr), filename
+        if self.gt:
+            hr = io.imread(self.hr[index])
+            if len(hr.shape) == 2:
+                hr = color.gray2rgb(hr)
+            return self.transform(hr), self.transform(lr), filename
+        return self.transform(lr), filename
 
     def __len__(self):
-        return len(self.hr)
+        return len(self.lr)

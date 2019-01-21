@@ -9,7 +9,7 @@ import utils
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str)
+    parser.add_argument("--model", type=str, default="ecarn")
     parser.add_argument("--ckpt", type=str)
     parser.add_argument("--sample_dir", type=str, default="./sample")
     parser.add_argument("--groups", type=int, default=1)
@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument("--scale", type=int, default=4)
     parser.add_argument("--num_channels", type=int, default=64)
     parser.add_argument("--mobile", action="store_true", default=False)
+    parser.add_argument("--no_gt", action="store_true", default=False)
 
     return parser.parse_args()
 
@@ -27,6 +28,7 @@ def inference(net, config):
         scale=config.scale,
         train=False,
         batch_size=1, num_workers=1,
+        gt=not config.no_gt,
         shuffle=False, drop_last=False
     )
     SR_root = os.path.join(
@@ -52,15 +54,21 @@ def inference(net, config):
     )
 
     for i, inputs in enumerate(loader):
-        HR = inputs[0].to(device)
-        LR = inputs[1].to(device)
+        if not config.no_gt:
+            HR = inputs[0].to(device)
+            LR = inputs[1].to(device)
+        else:
+            LR = inputs[0].to(device)
+
         with torch.no_grad():
             SR = net(LR, config.scale).detach()
 
-        HR_path = os.path.join(HR_root, "{}.png".format(i))
-        SR_path = os.path.join(SR_root, "{}.png".format(i))
+        SR_path = os.path.join(SR_root, "{:05d}.png".format(i+1))
         utils.save_image(SR.squeeze(0), SR_path)
-        utils.save_image(HR.squeeze(0), HR_path)
+
+        if not config.no_gt:
+            HR_path = os.path.join(HR_root, "{:05d}.png".format(i+1))
+            utils.save_image(HR.squeeze(0), HR_path)
 
 
 def main(config):
