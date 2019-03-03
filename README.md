@@ -1,6 +1,5 @@
 # Photo-realistic Image Super-resolution with Fast and Lightweight Cascading Residual Network
 Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn.<br>
-[[arXiv]()]
 
 ### Requirements
 - Python 3
@@ -82,5 +81,3 @@ python ecarn/main.py \
 ```
 
 ### Citation
-```
-```
