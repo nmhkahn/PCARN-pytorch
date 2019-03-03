@@ -1,0 +1,3 @@
+[submodule "pcarn/PerceptualSimilarity"]
+	path = pcarn/PerceptualSimilarity
+	url = https://github.com/richzhang/PerceptualSimilarity
