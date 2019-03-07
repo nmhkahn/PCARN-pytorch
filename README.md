@@ -1,7 +1,7 @@
 # Photo-realistic Image Super-resolution with Fast and Lightweight Cascading Residual Network
-Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn.<br>
+Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn. [[arXiv](https://arxiv.org/abs/1903.02240)]
 
-### Requirements
+## Requirements
 - Python 3
 - [PyTorch](https://github.com/pytorch/pytorch) (1.0.0), [torchvision](https://github.com/pytorch/vision)
 - Numpy, Scipy
@@ -10,10 +10,10 @@ Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn.<br>
 - importlib
 - [PerceptualSimilarity](https://github.com/richzhang/PerceptualSimilarity)
 
-### Dataset
+## Dataset
 We use the same protocols of CARN, our prior work. Please see the details on this [repo](https://github.com/nmhkahn/CARN-pytorch#dataset).
 
-### Test Pretrained Models
+## Test Pretrained Models
 We provide the pretrained models in the `checkpoints` directory. To test the PCARN on benchmark dataset:
 ```shell
 # For PCARN and PCARN (L1)
@@ -80,4 +80,15 @@ python ecarn/main.py \
     --memo <message_shown_in_logfile>
 ```
 
-### Citation
+## Results
+![](./assets/fig_visual_perception.png)
+
+## Citation
+```
+@article{ahn2018photo,
+  title={Photo-realistic Image Super-resolution with Fast and Lightweight Cascading Residual Network},
+  author={Ahn, Namhyuk and Kang, Byungkon and Sohn, Kyung-Ah},
+  journal={arXiv preprint arXiv:1903.02240},
+  year={2019}
+}
+```
