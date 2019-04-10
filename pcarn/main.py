@@ -4,8 +4,8 @@ import importlib
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="ecarn")
-    parser.add_argument("--ckpt_dir", type=str, default="./checkpoint/ecarn")
+    parser.add_argument("--model", type=str, default="pcarn")
+    parser.add_argument("--ckpt_dir", type=str, default="./checkpoint/pcarn")
     parser.add_argument("--train_data", type=str, default="./dataset/DIV2K.h5")
 
     parser.add_argument("--memo", type=str, default="")

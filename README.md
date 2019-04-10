@@ -39,16 +39,16 @@ We provide our results on four benchmark dataset (Set5, Set14, B100 and Urban100
 Before train the PCARN(-M), models have to be pretrained with L1 loss.
 ```shell
 # For PCARN (L1)
-python ecarn/main.py \
-    --model ecarn \
+python pcarn/main.py \
+    --model pcarn \
     --ckpt_dir ./checkpoints/<save_directory> \
     --batch_size 64 --patch_size 48 \
     --scale 0 --max_steps 600000 --decay 400000 \
     --memo <message_shown_in_logfile>
 
 # For PCARN-M (L1)
-python ecarn/main.py \
-    --model ecarn \
+python pcarn/main.py \
+    --model pcarn \
     --ckpt_dir ./checkpoints/<save_directory> \
     --mobile --group 4 \
     --batch_size 64 --patch_size 48 \
@@ -59,8 +59,8 @@ python ecarn/main.py \
 Train the PCARN(-M) using below commands. Note that [PerceptualSimilarity](https://github.com/richzhang/PerceptualSimilarity) has to be ready to evaluate the model performance during training.
 ```
 # For PCARN
-python ecarn/main.py \
-    --model ecarn \
+python pcarn/main.py \
+    --model pcarn \
     --ckpt_dir ./checkpoints/<save_directory> \
     --perceptual --msd \
     --pretrained_ckpt <pretrained_model_path> \
@@ -69,8 +69,8 @@ python ecarn/main.py \
     --memo <message_shown_in_logfile>
     
 # For PCARN-M
-python ecarn/main.py \
-    --model ecarn \
+python pcarn/main.py \
+    --model pcarn \
     --ckpt_dir ./checkpoints/<save_directory> \
     --perceptual --msd \
     --pretrained_ckpt <pretrained_model_path> \
