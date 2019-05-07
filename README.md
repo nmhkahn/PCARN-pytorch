@@ -17,16 +17,16 @@ We use the same protocols of CARN, our prior work. Please see the details on thi
 We provide the pretrained models in the `checkpoints` directory. To test the PCARN on benchmark dataset:
 ```shell
 # For PCARN and PCARN (L1)
-$ python carn/sample.py \
-    --model carn \
+$ python pcarn/inference.py \
+    --model pcarn \
     --ckpt ./checkpoints/<path>.pth \
     --data ./dataset/<dataset> \
     --scale [2|3|4] \
     --sample_dir <sample_dir>
 
 # For PCARN-M and PCARN-M (L1)
-$ python carn/sample.py \
-    --model carn \
+$ python pcarn/inference.py \
+    --model pcarn \
     --ckpt ./checkpoints/<path>.pth \
     --data ./dataset/<dataset> \
     --scale [2|3|4] \
