@@ -1,4 +1,4 @@
-# Photo-realistic Image Super-resolution with Fast and Lightweight Cascading Residual Network
+# Efficient Deep Neural Network for Photo-realistic Image Super-Resolution
 Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn. [[arXiv](https://arxiv.org/abs/1903.02240)]
 
 ## Requirements
@@ -85,8 +85,8 @@ python pcarn/main.py \
 
 ## Citation
 ```
-@article{ahn2018photo,
-  title={Photo-realistic Image Super-resolution with Fast and Lightweight Cascading Residual Network},
+@article{ahn2019efficient,
+  title={Efficient Deep Neural Network for Photo-realistic Image Super-Resolution},
   author={Ahn, Namhyuk and Kang, Byungkon and Sohn, Kyung-Ah},
   journal={arXiv preprint arXiv:1903.02240},
   year={2019}
