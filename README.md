@@ -13,7 +13,19 @@ Namhyuk Ahn, Byungkon Kang, Kyung-Ah Sohn. [[arXiv](https://arxiv.org/abs/1903.0
 ## Dataset
 We use the same protocols of CARN, our prior work. Please see the details on this [repo](https://github.com/nmhkahn/CARN-pytorch#dataset).
 
-## Test Pretrained Models
+## Test models on given directory
+To test on given image directory,
+```shell
+$ python pcarn/inference_dir.py \
+    --model pcarn \
+    --ckpt ./checkpoints/<path>.pth \
+    --data_root <dataset_root> \
+    --scale [2|3|4] \
+    --save_root <sample_dir_root>
+```
+More argument details are on the below section.
+
+## Test models on benchmark dataset
 We provide the pretrained models in the `checkpoints` directory. To test the PCARN on benchmark dataset:
 ```shell
 # For PCARN and PCARN (L1)
@@ -35,7 +47,7 @@ $ python pcarn/inference.py \
 ```
 We provide our results on four benchmark dataset (Set5, Set14, B100 and Urban100). [Google Drive](https://drive.google.com/drive/folders/17ZNnDhYlY6-n1JcaDMh2_2V-q-Eu7bGT?usp=sharing)
 
-### Training Models
+### Training models
 Before train the PCARN(-M), models have to be pretrained with L1 loss.
 ```shell
 # For PCARN (L1)
