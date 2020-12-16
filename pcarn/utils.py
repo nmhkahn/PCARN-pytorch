@@ -5,7 +5,7 @@ import skimage.color as color
 import skimage.measure as measure
 import torchvision
 from PIL import Image
-from PerceptualSimilarity.models import dist_model as dm
+import lpips
 
 class GANLoss(nn.Module):
     def __init__(self, device):
@@ -74,8 +74,7 @@ def rmse(ims1, ims2, scale):
 
 
 def LPIPS(ims1, ims2, scale):
-    model = dm.DistModel()
-    model.initialize(model="net-lin", net="alex", use_gpu=True, version="0.1")
+    model = lpips.LPIPS(net="alex")
 
     mean_distance = 0.0
     for im1, im2 in zip(ims1, ims2):
