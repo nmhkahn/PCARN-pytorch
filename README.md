@@ -45,7 +45,7 @@ $ python pcarn/inference.py \
     --sample_dir <sample_dir> \
     --mobile --group 4
 ```
-We provide our results on four benchmark dataset (Set5, Set14, B100 and Urban100). [Google Drive](https://drive.google.com/drive/folders/17ZNnDhYlY6-n1JcaDMh2_2V-q-Eu7bGT?usp=sharing)
+We provide our results on four benchmark dataset (Set5, Set14, B100 and Urban100). [Google Drive](https://drive.google.com/file/d/1rDUNFt_1mJZTBWd6bK460ZOeHfUqQZBY/view?usp=sharing)
 
 ### Training models
 Before train the PCARN(-M), models have to be pretrained with L1 loss.
